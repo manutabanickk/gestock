@@ -1,0 +1,17 @@
+{
+    "require": {
+        "afipsdk/afip.php": "^1.1",
+        "rmccue/requests": "^2.0",
+        "guzzlehttp/guzzle": "^7.9",
+        "endroid/qr-code": "^4.3",
+        "tusfacturas/sdk": "^1.0",
+        "vlucas/phpdotenv": "^5.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Afip\\": "vendor/afipsdk/afip.php/src/",
+             "App\\Model\\": "model/",
+             "TusFacturas\\SDK\\": "tusfacturas/php/"
+        }
+    }
+}
