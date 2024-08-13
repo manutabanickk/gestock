@@ -1,50 +1,44 @@
 <?php 
 
-	function __autoload($className){
-		$model = "../../model/". $className ."_model.php";
-		$controller = "../../controller/". $className ."_controller.php";
-	
-		require_once($model);
-		require_once($controller);
-	}
+spl_autoload_register(function($className) {
+    $model = "../../model/" . $className . "_model.php";
+    $controller = "../../controller/" . $className . "_controller.php";
 
-	$funcion = new Comprobante();
+    if (file_exists($model)) {
+        require_once($model);
+    }
 
-	if(isset($_POST['comprobante'])){
-		
-		try {
+    if (file_exists($controller)) {
+        require_once($controller);
+    }
+});
 
-			$proceso = $_POST['proceso'];
-			$id = $_POST['id'];
-			$comprobante = trim($_POST['comprobante']);
-			$estado = trim($_POST['estado']);
+$funcion = new ComprobanteModel(); // Instancia la clase correcta
 
-			switch($proceso){
+if (isset($_POST['comprobante'])) {
+    try {
+        $proceso = $_POST['proceso'];
+        $id = $_POST['id'];
+        $comprobante = trim($_POST['comprobante']);
+        $estado = trim($_POST['estado']);
 
-			case 'Registro':
-				$funcion->Insertar_Comprobante($comprobante);
-			break;
+        switch ($proceso) {
+            case 'Registro':
+                $funcion->Insertar_comprobante($comprobante); // Llamada al método correcto
+                break;
 
-			case 'Edicion':
-				$funcion->Editar_Comprobante($id,$comprobante,$estado);
-			break;
+            case 'Edicion':
+                $funcion->Editar_comprobante($id, $comprobante, $estado); // Llamada al método correcto
+                break;
 
-			default:
-				$data = "Error";
- 	   		 	echo json_encode($data);
-			break;
-		}
-			
-		} catch (Exception $e) {
-			
-			$data = "Error";
- 	   		echo json_encode($data);
-		}
-
-	}
-	
-	
-
-  	
-
+            default:
+                $data = "Error";
+                echo json_encode($data);
+                break;
+        }
+    } catch (Exception $e) {
+        $data = "Error";
+        echo json_encode($data);
+    }
+}
 ?>

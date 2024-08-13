@@ -1,4 +1,6 @@
 <?php
+  require_once __DIR__ . '/../model/Producto_model.php';
+  require_once __DIR__ . '/../controller/Producto_controller.php';
 
   if($tipo_usuario==1){
 
