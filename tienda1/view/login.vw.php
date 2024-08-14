@@ -13,7 +13,7 @@
             </div>
             
             <div class="widget-user-image">
-            <img class="img-circle" src="./web/assets/images/user.jpg" alt="User Avatar">
+            <img class="img-circle" src="./web/assets/images/user.png" alt="User Avatar">
             </div>
             
             <br>
@@ -24,7 +24,7 @@
 			
 		<div class="text-center">
 
-		<h5 class="content-group">Bienvenido a AlmacenesGM<small class="display-block">Iniciar Sesión</small></h5>
+		<h5 class="content-group">Bienvenido a Gestock<small class="display-block">Iniciar Sesión</small></h5>
 		</div>
 
 		<div class="form-group mb-3">

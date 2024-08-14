@@ -46,6 +46,7 @@
 	<!-- /theme JS files -->
 </head>
 
+
 <body class="has-detached-right">
 
 	<!-- Main navbar -->

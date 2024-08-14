@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__ . '/../model/Apartado_model.php';
+require_once __DIR__ . '/../controller/Apartado_controller.php';
+
 	$objVenta =  new Venta();
 	$objApartado =  new Apartado();
 	$count_Apartados = $objApartado->Count_Apartados('FECHAS','','');
