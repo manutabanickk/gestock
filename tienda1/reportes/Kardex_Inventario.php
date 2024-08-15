@@ -8,28 +8,26 @@ class PDF extends FPDF
     {
         if ($this->page == 1)
         {
-
-             $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto",
+            $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto",
             "Septiembre","Octubre","Noviembre","Diciembre");
 
-             $mes = isset($_GET['mes']) ? $_GET['mes'] : '';
-             $ano = substr($mes,3,4);
+            $mes = isset($_GET['mes']) ? $_GET['mes'] : '';
+            $ano = substr($mes,3,4);
             // Logo
-            //  $this->Image('logo.png',10,6,30);
+            // $this->Image('logo.png',10,6,30);
             // Arial bold 15
             $this->SetFont('Arial','B',15);
             // Move to the right
             $this->Cell(100);
             // Title
-            $this->Cell(105,10,'RESUMEN DE SALDOS Y MOVIMIENTOS DE PRODUCTOS DEL MES DE '.strtoupper($meses[date($mes)-1].' del '.$ano),0,0,'C');
+            $this->Cell(105,10,'RESUMEN DE SALDOS Y MOVIMIENTOS DE PRODUCTOS DEL MES DE '.strtoupper($meses[intval(substr($mes, 0, 2))-1].' del '.$ano),0,0,'C');
 
             // Line break
             $this->Ln(20);
         }
     }
 
-
-// Page footer
+    // Page footer
     function Footer()
     {
         // Position at 1.5 cm from bottom
@@ -42,26 +40,26 @@ class PDF extends FPDF
     }
 }
 
-    function __autoload($className){
-            $model = "../model/". $className ."_model.php";
-            $controller = "../controller/". $className ."_controller.php";
-        
-           require_once($model);
-           require_once($controller);
-    }
+function __autoload($className){
+    $model = "../model/". $className ."_model.php";
+    $controller = "../controller/". $className ."_controller.php";
+    
+    require_once($model);
+    require_once($controller);
+}
 
-    $objInventario =  new Inventario();
+$objInventario =  new Inventario();
 
-    $mes = isset($_GET['mes']) ? $_GET['mes'] : '';
-    $mes = DateTime::createFromFormat('m/Y', $mes)->format('Y-m');
+$mes = isset($_GET['mes']) ? $_GET['mes'] : '';
+$mes = DateTime::createFromFormat('m/Y', $mes)->format('Y-m');
 
-    $listado = $objInventario->Listar_Kardex($mes);
+$listado = $objInventario->Listar_Kardex($mes);
 
-    $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto",
-    "Septiembre","Octubre","Noviembre","Diciembre");
+$meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto",
+"Septiembre","Octubre","Noviembre","Diciembre");
 
-    $mes_actual = strtoupper($meses[date(substr($mes, 5,6))-1]);
-    $ano = substr($mes, 0,4);
+$mes_actual = strtoupper($meses[intval(substr($mes, 5, 2))-1]);
+$ano = substr($mes, 0,4);
 
 try {
     // Instanciation of inherited class
@@ -94,19 +92,18 @@ try {
             $pdf->Cell(14,9,$column["idproducto"],1,0,'L',1);
             $pdf->Cell(130,9,$column["producto"],1,0,'L',1);
             $pdf->Cell(41,9,$column["nombre_marca"],1,0,'C',1);
-            $pdf->Cell(31,9,$column["saldo_inicial"],1,0,'C',1);
-            $pdf->Cell(31,9,$column["entradas"],1,0,'C',1);
-            $pdf->Cell(31,9,$column["salidas"],1,0,'C',1);
-            $pdf->Cell(31,9,$column["saldo_final"],1,0,'C',1);
+            $pdf->Cell(31,9,number_format($column["saldo_inicial"], 2, '.', ','),1,0,'C',1);
+            $pdf->Cell(31,9,number_format($column["entradas"], 2, '.', ','),1,0,'C',1);
+            $pdf->Cell(31,9,number_format($column["salidas"], 2, '.', ','),1,0,'C',1);
+            $pdf->Cell(31,9,number_format($column["saldo_final"], 2, '.', ','),1,0,'C',1);
 
-            $total_inicial = $total_inicial + $column["saldo_inicial"];
-            $total_entrada = $total_entrada + $column["entradas"];
-            $total_salidas = $total_salidas + $column["salidas"];
-            $total_final = $total_final + $column["saldo_final"];
+            $total_inicial = $total_inicial + floatval($column["saldo_inicial"]);
+            $total_entrada = $total_entrada + floatval($column["entradas"]);
+            $total_salidas = $total_salidas + floatval($column["salidas"]);
+            $total_final = $total_final + floatval($column["saldo_final"]);
 
             $pdf->Ln(8);
             $get_Y = $pdf->GetY();
-
         }
 
         $pdf->setXY(10,$get_Y+1);
@@ -119,10 +116,7 @@ try {
 
     }
 
-
     $pdf->Output('I','Res_Saldos_'.$mes_actual.'_del_'.$ano);
-
-
 
 } catch (Exception $e) {
 
@@ -133,7 +127,6 @@ try {
     $pdf->Text(50,50,'ERROR AL IMPRIMIR');
     $pdf->SetFont('Times','',12);
     $pdf->Output();
-    
 }
 
 ?>

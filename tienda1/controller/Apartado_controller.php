@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../model/Apartado_model.php';
+
 class Apartado {
 
     private $model;

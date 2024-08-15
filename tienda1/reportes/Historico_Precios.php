@@ -5,13 +5,12 @@ $idproducto = isset($_GET['idproducto']) ? $_GET['idproducto'] : '';
 
 class PDF extends FPDF
 {
-    
     // Page header
     function Header()
     {
         if ($this->page == 1)
         {
-             $producto = isset($_GET['producto']) ? $_GET['producto'] : '';
+            $producto = isset($_GET['producto']) ? $_GET['producto'] : '';
             // Logo
             //  $this->Image('logo.png',10,6,30);
             // Arial bold 15
@@ -26,7 +25,7 @@ class PDF extends FPDF
         }
     }
 
-// Page footer
+    // Page footer
     function Footer()
     {
         // Position at 1.5 cm from bottom
@@ -39,28 +38,32 @@ class PDF extends FPDF
     }
 }
 
-    function __autoload($className){
-            $model = "../model/". $className ."_model.php";
-            $controller = "../controller/". $className ."_controller.php";
-        
-           require_once($model);
-           require_once($controller);
-    }
+function autoloadClasses($className){
+    $model = "../model/". $className ."_model.php";
+    $controller = "../controller/". $className ."_controller.php";
 
-    $objCompra = new Compra();
-    $listado = $objCompra->Reporte_Historico($idproducto);
-    $mas_bajo = $objCompra->Reporte_Historico_Mas_Bajo($idproducto);
-    $producto = isset($_GET['producto']) ? $_GET['producto'] : '';
-    $menor = 0.00;
-    $precio_mas_bajo = 0.00;
-    $proveedor_ganador = "";
-    $fecha_baja="";
+    require_once($model);
+    require_once($controller);
+}
 
+spl_autoload_register('autoloadClasses');
+
+$objCompra = new Compra();
+$listado = $objCompra->Reporte_Historico($idproducto);
+$mas_bajo = $objCompra->Reporte_Historico_Mas_Bajo($idproducto);
+$producto = isset($_GET['producto']) ? $_GET['producto'] : '';
+$menor = 0.00;
+$precio_mas_bajo = 0.00;
+$proveedor_ganador = "";
+$fecha_baja="";
+
+if (is_iterable($mas_bajo)) {
     foreach ($mas_bajo as $row => $column) {
         $proveedor_ganador = $column["nombre_proveedor"];
         $menor = $column["precio_comprado"];
         $fecha_baja = $column["fecha_precio"];
     }
+}
 
 try {
     // Instanciation of inherited class
@@ -79,26 +82,12 @@ try {
     $pdf->Line(322,37,10,37);
     $pdf->Ln(9);
 
-
-
-    if (is_array($listado) || is_object($listado))
-    {
+    if (is_iterable($listado)) {
         foreach ($listado as $row => $column) {
-
             $precio_mas_bajo = $column["precio_comprado"];
             $fecha_precio = $column["fecha_precio"];
-            
 
-            if(is_null($fecha_precio))
-            {
-                $envio_date = '';
-
-            } else {
-
-                $envio_date = DateTime::createFromFormat('Y-m-d',$fecha_precio)->format('d/m/Y');
-            }
-
-            
+            $envio_date = is_null($fecha_precio) ? '' : DateTime::createFromFormat('Y-m-d', $fecha_precio)->format('d/m/Y');
 
             $pdf->setX(9);
             $pdf->Cell(100,5,$column["nombre_producto"],0,0,'L',1);
@@ -106,7 +95,7 @@ try {
             $pdf->Cell(25,5,$column["siglas"],0,0,'L',1);
             $pdf->Cell(105,5,$column["nombre_proveedor"],0,0,'L',1);
             $pdf->Cell(22,5,$envio_date,0,0,'L',1);
-            $pdf->Cell(22,5,$column["precio_comprado"],0,0,'C',1);
+            $pdf->Cell(22,5,number_format($column["precio_comprado"], 2, '.', ','),0,0,'C',1);
             $pdf->Ln(6);
             $get_Y = $pdf->GetY();
         }
@@ -115,23 +104,18 @@ try {
         $pdf->SetFont('Arial','B',11);
         $pdf->Text(10,$get_Y + 10,'EL PRECIO MAS BAJO AL QUE SE HA COMPRADO ES : '.number_format($menor, 4, '.', ','));
         $pdf->Text(10,$get_Y + 16,'COMPRADO A  : '.$proveedor_ganador.' LA FECHA DE : '.DateTime::createFromFormat('Y-m-d',$fecha_baja)->format('d/m/Y'));
+    } else {
+        $pdf->SetFont('Arial','B',11);
+        $pdf->Text(10, 40, 'No se encontraron datos para mostrar.');
     }
-    
 
     $pdf->Output('I','Historico_Precios_'.$producto.'.pdf');
-
-
-
 } catch (Exception $e) {
-
-    // Instanciation of inherited class
     $pdf = new PDF();
     $pdf->AliasNbPages();
     $pdf->AddPage('L','Letter');
     $pdf->Text(50,50,'ERROR AL IMPRIMIR');
     $pdf->SetFont('Times','',12);
     $pdf->Output();
-    
 }
-
 ?>

@@ -59,7 +59,15 @@ class PDF extends FPDF
     $listado = $objVenta->Listar_Ventas_Detalle('MES',$mes,'',1);
     $totales = $objVenta->Listar_Ventas_Totales('MES',$mes,'',1);
     $objParametro = new Parametro();
-    $parametros = $objVenta->Ver_Moneda_Reporte();
+    $parametros = $objParametro->Ver_Moneda();
+
+    if (!empty($parametros)) {
+        foreach ($parametros as $row => $column) {
+            $moneda = $column['CurrencyName'];
+        }
+    } else {
+        $moneda = 'N/A'; // Valor predeterminado si no se obtiene ninguna moneda
+    }
 
     foreach ($parametros as $row => $column) {
 

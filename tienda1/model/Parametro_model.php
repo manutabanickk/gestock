@@ -1,215 +1,181 @@
 <?php
 
-	require_once('Conexion.php');
+require_once('Conexion.php');
 
-	class ParametroModel extends Conexion
-	{
-		public function Listar_Parametros()
-		{
-			$dbconec = Conexion::Conectar();
+class Parametromodel extends Conexion
+{
+    public function Listar_Parametros()
+    {
+        $dbconec = Conexion::Conectar();
 
-			try
-			{
-				$query = "CALL sp_view_parametro();";
-				$stmt = $dbconec->prepare($query);
-				$stmt->execute();
-				$count = $stmt->rowCount();
+        try {
+            $query = "CALL sp_view_parametro();";
+            $stmt = $dbconec->prepare($query);
+            $stmt->execute();
+            $count = $stmt->rowCount();
 
-				if($count > 0)
-				{
-					return $stmt->fetchAll();
-				}
+            if ($count > 0) {
+                return $stmt->fetchAll();
+            }
 
+            $dbconec = null;
+        } catch (Exception $e) {
+            echo '<span class="label label-danger label-block">ERROR AL CARGAR LOS DATOS, PRESIONE F5</span>';
+        }
+    }
 
-				$dbconec = null;
-			} catch (Exception $e) {
+    public function Listar_Monedas()
+    {
+        $dbconec = Conexion::Conectar();
 
-				echo '<span class="label label-danger label-block">ERROR AL CARGAR LOS DATOS, PRESIONE F5</span>';
-			}
-		}
+        try {
+            $query = "CALL sp_view_currency();";
+            $stmt = $dbconec->prepare($query);
+            $stmt->execute();
+            $count = $stmt->rowCount();
 
-		public function Listar_Monedas()
-		{
-			$dbconec = Conexion::Conectar();
+            if ($count > 0) {
+                return $stmt->fetchAll();
+            }
 
-			try
-			{
-				$query = "CALL sp_view_currency();";
-				$stmt = $dbconec->prepare($query);
-				$stmt->execute();
-				$count = $stmt->rowCount();
+            $dbconec = null;
+        } catch (Exception $e) {
+            echo '<span class="label label-danger label-block">ERROR AL CARGAR LOS DATOS, PRESIONE F5</span>';
+        }
+    }
 
-				if($count > 0)
-				{
-					return $stmt->fetchAll();
-				}
+    public function Ver_Impuesto()
+    {
+        $dbconec = Conexion::Conectar();
+        try {
+            $query = "CALL sp_view_impuesto();";
+            $stmt = $dbconec->prepare($query);
+            $stmt->execute();
+            $Data = array();
 
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $Data[] = $row;
+            }
 
-				$dbconec = null;
-			} catch (Exception $e) {
+            echo json_encode($Data);
 
-				echo '<span class="label label-danger label-block">ERROR AL CARGAR LOS DATOS, PRESIONE F5</span>';
-			}
-		}
+        } catch (Exception $e) {
+            echo "Error al cargar el listado";
+        }
+    }
 
-		public function Ver_Impuesto(){
+    public function Ver_Moneda()
+    {
+        $dbconec = Conexion::Conectar();
 
-			$dbconec = Conexion::Conectar();
-			try {
+        try {
+            $query = "CALL sp_view_money();";
+            $stmt = $dbconec->prepare($query);
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-				$query = "CALL sp_view_impuesto()";
-				$stmt = $dbconec->prepare($query);
-				$stmt->execute();
-				$Data = array();
+            if ($result) {
+                return $result;
+            } else {
+                return []; // Devuelve un array vacío si no hay resultados
+            }
 
-				while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
-		  			$Data[] = $row;
-				}
+        } catch (Exception $e) {
+            echo "Error al cargar el listado: " . $e->getMessage();
+            return []; // Devuelve un array vacío en caso de error
+        }
+    }
 
-				// header('Content-type: application/json');
-				 echo json_encode($Data);
+    public function Ver_Moneda_Simbolo()
+    {
+        $dbconec = Conexion::Conectar();
 
-			} catch (Exception $e) {
+        try {
+            $query = "CALL sp_view_money();";
+            $stmt = $dbconec->prepare($query);
+            $stmt->execute();
+            $count = $stmt->rowCount();
 
-				echo "Error al cargar el listado";
-			}
+            if ($count > 0) {
+                return $stmt->fetchAll();
+            }
 
-		}
+            $dbconec = null;
 
-		public function Ver_Moneda(){
+        } catch (Exception $e) {
+            echo "Error al cargar el listado";
+        }
+    }
 
-			$dbconec = Conexion::Conectar();
+    public function Insertar_Parametro($nombre_empresa, $propietario, $numero_nit,
+        $numero_nrc, $porcentaje_iva, $porcentaje_retencion, $monto_retencion, $direccion, $idcurrency)
+    {
+        $dbconec = Conexion::Conectar();
+        try {
+            $query = "CALL sp_insert_parametro(:nombre_empresa, :propietario, :numero_nit,
+            :numero_nrc, :porcentaje_iva, :porcentaje_retencion, :monto_retencion, :direccion, :idcurrency)";
+            $stmt = $dbconec->prepare($query);
+            $stmt->bindParam(":nombre_empresa", $nombre_empresa);
+            $stmt->bindParam(":propietario", $propietario);
+            $stmt->bindParam(":numero_nit", $numero_nit);
+            $stmt->bindParam(":numero_nrc", $numero_nrc);
+            $stmt->bindParam(":porcentaje_iva", $porcentaje_iva);
+            $stmt->bindParam(":porcentaje_retencion", $porcentaje_retencion);
+            $stmt->bindParam(":monto_retencion", $monto_retencion);
+            $stmt->bindParam(":direccion", $direccion);
+            $stmt->bindParam(":idcurrency", $idcurrency);
 
-			try {
-				$query = "CALL sp_view_money()";
-				$stmt = $dbconec->prepare($query);
-				$stmt->execute();
-				$Data = array();
+            if ($stmt->execute()) {
+                $count = $stmt->rowCount();
+                if ($count == 0) {
+                    $data = "Duplicado";
+                    echo json_encode($data);
+                } else {
+                    $data = "Validado";
+                    echo json_encode($data);
+                }
+            } else {
+                $data = "Error";
+                echo json_encode($data);
+            }
+            $dbconec = null;
+        } catch (Exception $e) {
+            $data = "Error";
+            echo json_encode($data);
+        }
+    }
 
-				while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
-		  			$Data[] = $row;
-				}
+    public function Editar_Parametro($idparametro, $nombre_empresa, $propietario, $numero_nit,
+        $numero_nrc, $porcentaje_iva, $porcentaje_retencion, $monto_retencion, $direccion, $idcurrency)
+    {
+        $dbconec = Conexion::Conectar();
+        try {
+            $query = "CALL sp_update_parametro(:idparametro, :nombre_empresa, :propietario, :numero_nit,
+            :numero_nrc, :porcentaje_iva, :porcentaje_retencion, :monto_retencion, :direccion, :idcurrency);";
+            $stmt = $dbconec->prepare($query);
+            $stmt->bindParam(":idparametro", $idparametro);
+            $stmt->bindParam(":nombre_empresa", $nombre_empresa);
+            $stmt->bindParam(":propietario", $propietario);
+            $stmt->bindParam(":numero_nit", $numero_nit);
+            $stmt->bindParam(":numero_nrc", $numero_nrc);
+            $stmt->bindParam(":porcentaje_iva", $porcentaje_iva);
+            $stmt->bindParam(":porcentaje_retencion", $porcentaje_retencion);
+            $stmt->bindParam(":monto_retencion", $monto_retencion);
+            $stmt->bindParam(":direccion", $direccion);
+            $stmt->bindParam(":idcurrency", $idcurrency);
 
-				// header('Content-type: application/json');
-				 echo json_encode($Data);
-
-			} catch (Exception $e) {
-
-				echo "Error al cargar el listado";
-			}
-
-		}
-
-		public function Ver_Moneda_Simbolo(){
-
-			$dbconec = Conexion::Conectar();
-
-			try {
-				$query = "CALL sp_view_money()";
-				$stmt = $dbconec->prepare($query);
-				$stmt->execute();
-				$count = $stmt->rowCount();
-
-				if($count > 0)
-				{
-					return $stmt->fetchAll();
-				}
-
-
-				$dbconec = null;
-
-			} catch (Exception $e) {
-
-				echo "Error al cargar el listado";
-			}
-
-		}
-
-
-		public function Insertar_Parametro($nombre_empresa, $propietario, $numero_nit,
-		$numero_nrc, $porcentaje_iva, $porcentaje_retencion , $monto_retencion, $direccion, $idcurrency)
-		{
-			$dbconec = Conexion::Conectar();
-			try
-			{
-				$query = "CALL sp_insert_parametro(:nombre_empresa, :propietario, :numero_nit,
-				:numero_nrc, :porcentaje_iva, :porcentaje_retencion, :monto_retencion, :direccion, :idcurrency)";
-				$stmt = $dbconec->prepare($query);
-				$stmt->bindParam(":nombre_empresa",$nombre_empresa);
-				$stmt->bindParam(":propietario",$propietario);
-				$stmt->bindParam(":numero_nit",$numero_nit);
-				$stmt->bindParam(":numero_nrc",$numero_nrc);
-				$stmt->bindParam(":porcentaje_iva",$porcentaje_iva);
-				$stmt->bindParam(":porcentaje_retencion",$porcentaje_retencion);
-				$stmt->bindParam(":monto_retencion",$monto_retencion);
-				$stmt->bindParam(":direccion",$direccion);
-				$stmt->bindParam(":idcurrency",$idcurrency);
-
-				if($stmt->execute())
-				{
-					$count = $stmt->rowCount();
-					if($count == 0){
-						$data = "Duplicado";
- 	   					echo json_encode($data);
-					} else {
-						$data = "Validado";
- 	   					echo json_encode($data);
-					}
-				} else {
-
-					$data = "Error";
- 	   		 	echo json_encode($data);
-				}
-				$dbconec = null;
-			} catch (Exception $e) {
-				$data = "Error";
-				echo json_encode($data);
-
-			}
-
-		}
-
-		public function Editar_Parametro($idparametro, $nombre_empresa, $propietario, $numero_nit,
-		$numero_nrc, $porcentaje_iva, $porcentaje_retencion, $monto_retencion, $direccion,$idcurrency)
-		{
-			$dbconec = Conexion::Conectar();
-			try
-			{
-				$query = "CALL sp_update_parametro(:idparametro,:nombre_empresa, :propietario, :numero_nit,
-				:numero_nrc, :porcentaje_iva, :porcentaje_retencion, :monto_retencion, :direccion,:idcurrency);";
-				$stmt = $dbconec->prepare($query);
-				$stmt->bindParam(":idparametro",$idparametro);
-				$stmt->bindParam(":nombre_empresa",$nombre_empresa);
-				$stmt->bindParam(":propietario",$propietario);
-				$stmt->bindParam(":numero_nit",$numero_nit);
-				$stmt->bindParam(":numero_nrc",$numero_nrc);
-				$stmt->bindParam(":porcentaje_iva",$porcentaje_iva);
-				$stmt->bindParam(":porcentaje_retencion",$porcentaje_retencion);
-				$stmt->bindParam(":monto_retencion",$monto_retencion);
-				$stmt->bindParam(":direccion",$direccion);
-				$stmt->bindParam(":idcurrency",$idcurrency);
-
-				if($stmt->execute())
-				{
-
-				  $data = "Validado";
-   				  echo json_encode($data);
-
-				} else {
-
-					$data = "Error";
- 	   		 	 	echo json_encode($data);
-				}
-				$dbconec = null;
-			} catch (Exception $e) {
-				$data = "Error";
-				echo json_encode($data);
-
-			}
-
-		}
-
-	}
-
-
- ?>
+            if ($stmt->execute()) {
+                $data = "Validado";
+                echo json_encode($data);
+            } else {
+                $data = "Error";
+                echo json_encode($data);
+            }
+            $dbconec = null;
+        } catch (Exception $e) {
+            $data = "Error";
+            echo json_encode($data);
+        }
+    }
+}
+?>
