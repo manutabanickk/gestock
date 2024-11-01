@@ -1,60 +1,57 @@
 <?php 
 
-	class Inventario {
+class Inventario {
 
-		public function Listar_Kardex($mes){
+    public function Listar_Kardex($mes) {
+        // Instanciar InventarioModel
+        $inventarioModel = new InventarioModel();
+        $filas = $inventarioModel->Listar_Kardex($mes);  // Llamada no estática
+        return $filas;
+    }
 
-			$filas = InventarioModel::Listar_Kardex($mes);
-			return $filas;
-		
-		}
+    public function Listar_Entradas($mes) {
+        // Instanciar InventarioModel
+        $inventarioModel = new InventarioModel();
+        $filas = $inventarioModel->Listar_Entradas($mes);  // Llamada no estática
+        return $filas;
+    }
 
-		public function Listar_Entradas($mes){
+    public function Listar_Salidas($mes) {
+        // Instanciar InventarioModel
+        $inventarioModel = new InventarioModel();
+        $filas = $inventarioModel->Listar_Salidas($mes);  // Llamada no estática
+        return $filas;
+    }
 
-			$filas = InventarioModel::Listar_Entradas($mes);
-			return $filas;
-		
-		}
+    public function Insertar_Entrada($descripcion, $cantidad, $producto) {
+        // Instanciar InventarioModel
+        $inventarioModel = new InventarioModel();
+        $cmd = $inventarioModel->Insertar_Entrada($descripcion, $cantidad, $producto);  // Llamada no estática
+    }
 
-		public function Listar_Salidas($mes){
+    public function Insertar_Salida($descripcion, $cantidad, $producto) {
+        // Instanciar InventarioModel
+        $inventarioModel = new InventarioModel();
+        $cmd = $inventarioModel->Insertar_Salida($descripcion, $cantidad, $producto);  // Llamada no estática
+    }
 
-			$filas = InventarioModel::Listar_Salidas($mes);
-			return $filas;
-		
-		}
+    public function Abrir_Inventario() {
+        // Instanciar InventarioModel
+        $inventarioModel = new InventarioModel();
+        $cmd = $inventarioModel->Abrir_Inventario();  // Llamada no estática
+    }
 
+    public function Cerrar_Inventario() {
+        // Instanciar InventarioModel
+        $inventarioModel = new InventarioModel();
+        $cmd = $inventarioModel->Cerrar_Inventario();  // Llamada no estática
+    }
 
-		public function Insertar_Entrada($descripcion,$cantidad,$producto){
+    public function Validar_Inventario() {
+        // Instanciar InventarioModel
+        $inventarioModel = new InventarioModel();
+        $cmd = $inventarioModel->Validar_Inventario();  // Llamada no estática
+    }
+}
 
-			$cmd = InventarioModel::Insertar_Entrada($descripcion,$cantidad,$producto);
-			
-		}
-
-		public function Insertar_Salida($descripcion,$cantidad,$producto){
-
-			$cmd = InventarioModel::Insertar_Salida($descripcion,$cantidad,$producto);
-			
-		}
-
-
-		public function Abrir_Inventario(){
-
-			$cmd = InventarioModel::Abrir_Inventario();
-			
-		}
-
-		public function Cerrar_Inventario(){
-
-			$cmd = InventarioModel::Cerrar_Inventario();
-			
-		}
-
-		public function Validar_Inventario(){
-
-			$cmd = InventarioModel::Validar_Inventario();
-			
-		}
-	}
-
-
- ?>
+?>
